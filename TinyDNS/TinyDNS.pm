@@ -1,31 +1,31 @@
 ###
-#  by Anarion 
+#  by Anarion
 #  anarion@7a69ezine.org
 package DNS::TinyDNS;
 
-our $VERSION = '0.20';
+our $VERSION = '0.22';
 
 =head1 NAME
 
-DNS::TinyDNS - Perl extension for manipulating djbdns 
+DNS::TinyDNS - Perl extension for manipulating djbdns
 
 =head1 SYNOPSIS
 
   use DNS::TinyDNS;
-  
+
   # Create a dnsserver or a dnscache
   my $cache  = DNS::TinyDNS->new(type => 'dnscache');
-  my $server = DNS::TinyDNS->new(type => 'dnsserver');  
+  my $server = DNS::TinyDNS->new(type => 'dnsserver');
 
 
   # Set the config directory
   $server->dir('/service/tinydns');
-  
-  # start, stop and restart 
+
+  # start, stop and restart
   $cache->stop;
   $cache->start;
   $server->restart;
-    
+
 =head1 DESCRIPTION
 
 This module will allow you to manipulate djbdns files. You can

@@ -1,4 +1,6 @@
 Revision history for Perl extension DNS::TinyDNS.
+0.22  Thu Nov 25 09:50:34 2003
+        - Changed syntax to remove inverse dns, now ony ip is needed
 
 0.20  Mon Apr  8 01:24:48 2003
         - Fixed some bug parsing reverse dns reported by Tom Arnold

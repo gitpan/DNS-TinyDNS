@@ -1,14 +1,14 @@
 ###
-#  by Anarion 
+#  by Anarion
 #  anarion@7a69ezine.org
 package DNS::TinyDNS::dnscache;
 
 our @ISA = qw(DNS::TinyDNS);
-our $VERSION = '0.20';
+our $VERSION = '0.22';
 
 =head1 NAME
 
-DNS::TinyDNS::dnscache - Perl extension for manipulating dnscache from djbdns 
+DNS::TinyDNS::dnscache - Perl extension for manipulating dnscache from djbdns
 
 =head1 SYNOPSIS
 
@@ -194,7 +194,7 @@ sub del_ip
                 return 0;
         }
 
-        unlink("$dir/$ip") 
+        unlink("$dir/$ip")
                 or carp "Warning: That ip wasn't in the db";#'
 }
 
@@ -204,14 +204,14 @@ sub list_ips
         my $dir = $self->{dir} . "/root/ip";
         my @ips;
         local *FILE;
-        
+
         unless($self->{dir} and -d $dir)
         {
                 carp "ERROR: dnscache directory not set";
                 return 0;
         }
-        
-        opendir(FILE,$dir) 
+
+        opendir(FILE,$dir)
             or carp "ERROR: Cant read $dir";
         @ips = grep { index($_,".") != 0 } readdir(FILE);
         closedir(FILE);
@@ -224,14 +224,14 @@ sub add_server
         my $file = $self->{dir} . '/root/servers/@';
         my @array;
         local *FILE;
-        
+
         unless($self->{dir} and -f $file)
         {
                 carp "ERROR: dnscache directory not set";
                 return 0;
         }
-        
-        open(FILE, ">>$file")         
+
+        open(FILE, ">>$file")
             or carp "ERROR: Cant write to $file" and return;
         flock(FILE,LOCK_EX)
             or carp "ERROR: Cant lock $file";
@@ -248,14 +248,14 @@ sub del_server
         my $file = $self->{dir} . '/root/servers/@';
         my @array;
         local (*FILENEW,*FILEOLD);
-        
+
         unless($self->{dir} and -f $file)
         {
                 carp "ERROR: $self->{dir} isn't a dnscache directory";#'
                 return 0;
         }
 
-        open(FILENEW, ">$self->{dir}/root/servers/new")         
+        open(FILENEW, ">$self->{dir}/root/servers/new")
                 or carp "ERROR: Cant write to $self->{dir}/root/servers/new" and return;
         flock(FILENEW,LOCK_EX)
             or carp "ERROR: Cant lock $self->{dir}/root/servers/new";
@@ -287,19 +287,19 @@ sub list_servers
         my $file = $self->{dir} . '/root/servers/@';
         my @root_servers;
         local *FILE;
-        
+
         unless($self->{dir} and -f $file)
         {
                 carp "ERROR: dnscache directory not set ($file)";
                 return 0;
         }
-        
-        open(FILE,$file) 
+
+        open(FILE,$file)
             or carp "ERROR: Cant read from $file";
         flock(FILE,LOCK_EX)
             or carp "Cant lock $file";
         seek(FILE,0,0)
-            or carp "ERROR: Cant seek $file";  
+            or carp "ERROR: Cant seek $file";
         chomp(@root_servers=<FILE>);
         close(FILE)
             or carp "ERROR: Cant close $file";

@@ -3,11 +3,11 @@
 package DNS::TinyDNS::dnsserver;
 
 our @ISA = qw(DNS::TinyDNS);
-our $VERSION = '0.21';
+our $VERSION = '0.22';
 
 =head1 NAME
 
-DNS::TinyDNS::dnsserver - Perl extension for manipulating dnsserver from djbdns 
+DNS::TinyDNS::dnsserver - Perl extension for manipulating dnsserver from djbdns
 
 =head1 SYNOPSIS
 
@@ -194,9 +194,7 @@ This method delete a alias record
 
 This method delete a reverse dns record
 
-        $dnsserver->del(zone => '7a69ezine.org',
-                        type => 'reverse',
-                        host => 'anarion',
+        $dnsserver->del(type => 'reverse',
                         ip   => '10.0.0.13',
                         );
 
@@ -252,7 +250,7 @@ sub new
         my ($clase,$dir)=@_;
         my $self = {    dir        => $dir,
                         t_env      => { IP      => ''  ,
-                                        ROOT    => '' }, 
+                                        ROOT    => '' },
                         svc        => '/usr/local/bin/svc'
                 };
         return bless $self,$clase;
@@ -289,8 +287,8 @@ sub list
     my ($self,%options) = @_;
     my $file = $self->{dir} . "/root/data";
     my (@zone);
-    local *FILE;    
-    
+    local *FILE;
+
     unless($self->{dir} and -f $file)
     {
         carp "ERROR: dnsserver directory not set";
@@ -302,8 +300,8 @@ sub list
         carp "ERROR: this type doesnt exists.";
         return 0;
     }
-    
-    open(FILE,$file) 
+
+    open(FILE,$file)
         or carp "ERROR: Cant read from $file";
     flock(FILE,LOCK_EX)
         or carp "Cant lock $file";
@@ -412,7 +410,7 @@ sub add
                 or carp "Cant lock $file";
         seek(FILE,0,2)
                 or carp "ERROR: Cant seek $file";
-        $options{ttl} ||= 86400; 
+        $options{ttl} ||= 86400;
         for($options{type})
         {
                 $string =
@@ -474,9 +472,8 @@ sub del
                                         ":\Q$options{host}:$options{pref}\E"  } ||
                         /ns/    && do { "^[.&]\Q$options{zone}:$options{ip}\E"   .
                                         ":\Q$options{host}\E:"                } ||
-                        /reverse/&&do { sprintf("^\\^%d.%d.%d.%d.in-addr.arpa:%s.%s:%d",
-                                        ($options{ip} =~/\d+/g)[3,2,1,0],
-                                        @options{'host','zone','ttl'})        } or
+                        /reverse/&&do { sprintf("^\\^%d.%d.%d.%d.in-addr.arpa:",
+                                        ($options{ip} =~/\d+/g)[3,2,1,0])     } or
                         warn "Unknown option ($_)";
         }
         return 0 unless $entry;
@@ -486,7 +483,7 @@ sub del
         {
                 next if $entrada=~/$entry/;
                 syswrite(FILENEW,$entrada)
-			or carp "Cant write to file";
+                        or carp "Cant write to file";
         }
 
         close(FILENEW)
@@ -497,7 +494,7 @@ sub del
             or carp "ERROR: Cant unlink $file";
         rename("$file.new",$file)
             or carp "ERROR: Cant rename $file.new to $file";
-	return $trobat;
+        return $trobat;
 }
 
 ### PRIVATE SUBS
