@@ -1,0 +1,6 @@
+Revision history for Perl extension DNS::TinyDNS::dnscache.
+
+0.01  Sat Nov 23 12:39:01 2002
+	- original version; created by h2xs 1.22 with options
+		-AXO -n DNS::TinyDNS::dnscache
+
