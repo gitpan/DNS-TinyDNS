@@ -3,7 +3,7 @@
 package DNS::TinyDNS::dnsserver;
 
 our @ISA=qw(DNS::TinyDNS);
-our $VERSION="0.11";
+our $VERSION="0.12";
 
 =head1 NAME
 
@@ -321,6 +321,8 @@ sub add
 		or carp "ERROR: Cant read from $file";
 	flock(FILE,LOCK_EX)
 	        or carp "Cant lock $file";
+        seek(FILE,0,2)
+	        or carp "ERROR: Cant seek $file";
 	$options{ttl}||="86400"; # 1 day
 	for($options{type})
 	{
@@ -364,6 +366,11 @@ sub del
 		or carp "ERROR: Cant read from $file.new";
 	flock(FILE,LOCK_EX)
 	        or carp "Cant lock $file";
+
+        seek(FILE,0,0)
+	        or carp "ERROR: Cant seek $file";
+        seek(FILENEW,0,0)
+	        or carp "ERROR: Cant seek $file.new";
 
 	ENTRADA:
 	while(my $entrada=<FILE>)
@@ -437,6 +444,4 @@ sub _parse_all
     return $types{$tipus}->($_[0]);
 }
 
-"Vale 10";
-
-
+1;

@@ -3,7 +3,7 @@
 #  anarion@7a69ezine.org
 package DNS::TinyDNS;
 
-our $VERSION="0.11";
+our $VERSION="0.12";
 
 =head1 NAME
 
@@ -207,6 +207,8 @@ sub set_env
 	        	or carp "ERROR: Cant write to $file" and return;
 	        flock(FILE,LOCK_EX) 
 	        	or carp "ERROR: Cant lock $file";
+                seek(FILE,0,0)
+		        or carp "ERROR: Cant seek $file";
 	        $self->{t_env}->{uc $type} = $types{$type} || $types{uc $type};
 	        syswrite(FILE,"$types{$type}");
 	        close(FILE)
@@ -247,4 +249,4 @@ sub svc
         return $self->{svc}
 }
 
-"I Never Loved You Anyway";
+1;

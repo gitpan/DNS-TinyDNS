@@ -4,7 +4,7 @@
 package DNS::TinyDNS::dnscache;
 
 our @ISA=qw(DNS::TinyDNS);
-our $VERSION="0.11";
+our $VERSION="0.12";
 
 =head1 NAME
 
@@ -193,6 +193,8 @@ sub add_server
             or carp "ERROR: Cant write to $file" and return;
 	flock(FILE,LOCK_EX) 
             or carp "ERROR: Cant lock $file";
+        seek(FILE,0,2)
+            or carp "ERROR: Cant seek $file";
         print FILE "$ip\n";
         close(FILE)
 	    or carp "ERROR: Cant close $file";
@@ -221,6 +223,8 @@ sub del_server
             or carp "ERROR: Cant lock $file";
         seek(FILEOLD,0,0)
             or carp "ERROR: Cant seek $file";
+	seek(FILENEW,0,0)
+	   or carp "ERROR: Cant seek $self->{dir}/root/servers/new";
         while(my $line = <FILEOLD>)
         {
 		syswrite(FILENEW,$line) if index($line,$ip)==-1;
@@ -260,4 +264,4 @@ sub list_servers
         return @root_servers;
 }
 
-"Don't Say You Love Me";
+1;

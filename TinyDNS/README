@@ -20,9 +20,8 @@ To install this module type the following:
 
 DEPENDENCIES
 
-This module requires these other modules and libraries:
+This module requires that you have installed djbdns from: http://cr.yp.to
 
-  blah blah blah
 
 COPYRIGHT AND LICENCE
 
