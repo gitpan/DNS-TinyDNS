@@ -3,7 +3,7 @@
 package DNS::TinyDNS::dnsserver;
 
 our @ISA = qw(DNS::TinyDNS);
-our $VERSION = '0.20';
+our $VERSION = '0.21';
 
 =head1 NAME
 
@@ -314,8 +314,8 @@ sub list
         chomp($entrada);
         if($entrada =~ /^$types{ $options{type} }/)
         {
-                next if ! $options{zone} or 
-                        $entrada !~ /^.([\w\-]+\.)*\Q$options{zone}\E:/ and 
+                next if ! $options{zone} or
+                        $entrada !~ /^.([\w\-]+\.)*\Q$options{zone}\E:/ and
                         $entrada !~ /^.[\w.]+\.in-addr.arpa:\Q$options{zone}\E:/;
                 push(@zone,$parse{ $options{type} }->($entrada));
         }
@@ -412,7 +412,7 @@ sub add
                 or carp "Cant lock $file";
         seek(FILE,0,2)
                 or carp "ERROR: Cant seek $file";
-        $options{ttl} ||= 86400; # 1 day
+        $options{ttl} ||= 86400; 
         for($options{type})
         {
                 $string =
@@ -463,7 +463,7 @@ sub del
         seek(FILENEW,0,0)
                 or carp "ERROR: Cant seek $file.new";
 
-        my ($entry,$found);
+        my $entry;
         for($options{type})
         {
                 $entry = /host/ && do { "^[=+]\Q$options{host}.$options{zone}\E" .
@@ -484,8 +484,9 @@ sub del
 
         while(my $entrada=<FILE>)
         {
-                ++$found and next if $found or $entrada=~/$entry/;
-                syswrite(FILENEW,$entrada);
+                next if $entrada=~/$entry/;
+                syswrite(FILENEW,$entrada)
+			or carp "Cant write to file";
         }
 
         close(FILENEW)
