@@ -3,7 +3,7 @@
 package DNS::TinyDNS::dnsserver;
 
 our @ISA=qw(DNS::TinyDNS);
-our $VERSION="0.12";
+our $VERSION="0.13";
 
 =head1 NAME
 
@@ -230,7 +230,7 @@ sub list
         chomp($entrada);
         if($entrada=~/^$types{$options{type}}/)
         {
-            	next if $options{zone} and $entrada !~ /^.?[\w\.\-]*\.\Q$options{zone}\E:/;
+            	next if $options{zone} and $entrada !~ /^.([\w\.\-]*\.)*\Q$options{zone}\E:/;
 		push(@zone,$parse{$options{type}}->($entrada));
         }
     }
@@ -269,7 +269,7 @@ sub list_zones
 
 sub get_zone
 {
-	my $self = shift;
+	my ($self,$zone) = @_;
 	my $file=$self->{dir} . "/root/data";
 	my @zone;
 	local *FILE;
@@ -288,7 +288,7 @@ sub get_zone
 	        or carp "ERROR: Cant seek $file";
 	while(my $entrada=<FILE>)
 	{
-		if ($entrada=~/^$types{all}?[\w\.\-]*\.\Q$options{zone}\E:/)
+		if ($entrada=~/^$types{all}([\w\.\-]*\.)*\Q$zone\E:/)
 		{
 			push(@zone,_parse_all->($entrada));
 		}	

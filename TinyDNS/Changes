@@ -1,5 +1,8 @@
 Revision history for Perl extension DNS::TinyDNS.
 
+0.13  Wed Nov 26 09:59:55 2002
+	- Fixed tests to skip if theres no installed version of djbdns
+	- Fixed difference args between pod and method
 
 0.1   Sat Nov 23 12:39:04 2002
 	- original version; created by h2xs 1.22 with options
