@@ -1,5 +1,12 @@
 Revision history for Perl extension DNS::TinyDNS.
 
+0.20  Mon Apr  8 01:24:48 2003
+        - Fixed some bug parsing reverse dns reported by Tom Arnold
+        - Added a method to add/delete reverse dns more easy
+        - Added type returned when you list the entrys so you can add/del
+          with that ref
+        - Some minnor code improvements
+
 0.14  Wed Feb 28 13:13:13 2003
         - Fixed some bugs parsing the data file
         - Some minor changes

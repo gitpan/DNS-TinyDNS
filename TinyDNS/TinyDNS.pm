@@ -3,7 +3,7 @@
 #  anarion@7a69ezine.org
 package DNS::TinyDNS;
 
-our $VERSION = "0.15";
+our $VERSION = '0.20';
 
 =head1 NAME
 
@@ -32,8 +32,8 @@ This module will allow you to manipulate djbdns files. You can
 configure the options of dnscache, list, add, remove, or modify
 all the entrys of your dns server too.
 
-Please check the documentation of DNS::TinyDNS::dnscache or 
-DNS::TinyDNS::dnsserver to see the details of each one.
+Please check the documentation of L<DNS::TinyDNS::dnscache> or
+L<DNS::TinyDNS::dnsserver> to see the details of each one.
 
 
 =head1 FUNCTIONS
@@ -233,7 +233,7 @@ sub set_env
                 seek(FILE,0,0)
                         or carp "ERROR: Cant seek $file";
                 $self->{t_env}->{$uctype} = $types{$type};
-		syswrite(FILE,$types{$type});
+                syswrite(FILE,$types{$type});
                 close(FILE)
                         or carp "ERROR: Cant close $file";
         }

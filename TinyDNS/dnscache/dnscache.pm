@@ -4,7 +4,7 @@
 package DNS::TinyDNS::dnscache;
 
 our @ISA = qw(DNS::TinyDNS);
-our $VERSION = "0.15";
+our $VERSION = '0.20';
 
 =head1 NAME
 
@@ -45,9 +45,13 @@ This module will allow you to manipulate djbdns dnscache files.
 
 =back
 
-Returns a list of all the ips/nets allowed to use this cache server
+Returns a list/reference of all the ips/nets allowed to use this cache server
 
-        my @ips=$dnscache->list_ips;
+        # Returns a list
+        my @ips = $dnscache->list_ips;
+
+        # Returns an array ref
+        my $ips = $dnscache->list_ips;
 
 =over 4
 
@@ -79,9 +83,13 @@ This deletes C<All entries> of 10.0.0.0/24 allowed to use this dnscache.
 
 =back
 
-Returns a list of the root servers
+Returns a list/reference of the root servers
 
-        my @root_servers=$dnscache->list_servers;
+        # Returns a list
+        my @root_servers = $dnscache->list_servers;
+
+        # Returns an array ref
+        my $root_servers = $dnscache->list_servers;
 
 =over 4
 
@@ -118,6 +126,18 @@ You can set/get this vars:
 
 For further information about every var, consult djbdns cache documentation at
 C<http://cr.yp.to/>
+
+=head1 AUTHOR
+
+Anarion: anarion@7a69ezine.org
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=head1 SEE ALSO
+
+L<DNS::TinyDNS>.
+L<DNS::TinyDNS::dnsserver>.
 
 =cut
 
@@ -175,7 +195,7 @@ sub del_ip
         }
 
         unlink("$dir/$ip") 
-		or carp "Warning: That ip wasn't in the db";   
+                or carp "Warning: That ip wasn't in the db";#'
 }
 
 sub list_ips
@@ -195,7 +215,7 @@ sub list_ips
             or carp "ERROR: Cant read $dir";
         @ips = grep { index($_,".") != 0 } readdir(FILE);
         closedir(FILE);
-        return @ips;
+        return wantarray ? @ips : \@ips;
 }
 
 sub add_server
@@ -213,13 +233,13 @@ sub add_server
         
         open(FILE, ">>$file")         
             or carp "ERROR: Cant write to $file" and return;
-	flock(FILE,LOCK_EX) 
+        flock(FILE,LOCK_EX)
             or carp "ERROR: Cant lock $file";
         seek(FILE,0,2)
             or carp "ERROR: Cant seek $file";
         print FILE "$ip\n";
         close(FILE)
-	    or carp "ERROR: Cant close $file";
+                or carp "ERROR: Cant close $file";
 }
 
 sub del_server
@@ -231,29 +251,29 @@ sub del_server
         
         unless($self->{dir} and -f $file)
         {
-                carp "ERROR: $self->{dir} isn't a dnscache directory";
+                carp "ERROR: $self->{dir} isn't a dnscache directory";#'
                 return 0;
         }
 
         open(FILENEW, ">$self->{dir}/root/servers/new")         
-	    or carp "ERROR: Cant write to $self->{dir}/root/servers/new" and return;
-	flock(FILENEW,LOCK_EX) 
+                or carp "ERROR: Cant write to $self->{dir}/root/servers/new" and return;
+        flock(FILENEW,LOCK_EX)
             or carp "ERROR: Cant lock $self->{dir}/root/servers/new";
         open(FILEOLD,$file)
             or carp "ERROR: Cant read from $file" and return;
-	flock(FILEOLD,LOCK_EX) 
+        flock(FILEOLD,LOCK_EX)
             or carp "ERROR: Cant lock $file";
         seek(FILEOLD,0,0)
             or carp "ERROR: Cant seek $file";
-	seek(FILENEW,0,0)
-	   or carp "ERROR: Cant seek $self->{dir}/root/servers/new";
+        seek(FILENEW,0,0)
+                or carp "ERROR: Cant seek $self->{dir}/root/servers/new";
         while(my $line = <FILEOLD>)
         {
-		syswrite(FILENEW,$line) if index($line,$ip) == -1;
+                syswrite(FILENEW,$line) if index($line,$ip) == -1;
         }
-	close(FILENEW)
-	    or carp "ERROR: Cant close $self->{dir}/root/servers/new";
-	close(FILEOLD)
+        close(FILENEW)
+                or carp "ERROR: Cant close $self->{dir}/root/servers/new";
+        close(FILEOLD)
             or carp "ERROR: Cant close $self->{dir}/root/servers/new";
         unlink($file)
             or carp "ERROR: Cant unlink $self->{dir}/root/servers/new";
@@ -283,7 +303,7 @@ sub list_servers
         chomp(@root_servers=<FILE>);
         close(FILE)
             or carp "ERROR: Cant close $file";
-        return @root_servers;
+        return wantarray ? @root_servers : \@root_servers;
 }
 
 1;

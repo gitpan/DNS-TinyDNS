@@ -3,7 +3,7 @@
 package DNS::TinyDNS::dnsserver;
 
 our @ISA = qw(DNS::TinyDNS);
-our $VERSION = "0.15";
+our $VERSION = '0.20';
 
 =head1 NAME
 
@@ -16,6 +16,23 @@ DNS::TinyDNS::dnsserver - Perl extension for manipulating dnsserver from djbdns
         # First create the object
         my $dnsserver = DNS::TinyDNS->new(type => 'dnsserver',
                                           dir  => '/service/tinydns');
+
+        # Get zones
+        @zones = $dnsserver->list_zones;
+
+        # Get one zone
+        $zone = $dnsserver->get_zone($zones[0]);
+
+        # Add entry
+        $dnsserver->add(zone => $zones[0],
+                        type => 'ns',
+                        host => 'anarion.7a69ezine.org',
+                        ttl  => 84500,
+                        );
+
+        # Modify ip where tinydns listens
+        $dnsserver->set_env( IP => '10.0.0.1' );
+        $dnsserver->restart;
 
 
 =head1 DESCRIPTION
@@ -44,9 +61,9 @@ C<http://cr.yp.to/>
 
 =back
 
-This method returns an array of all the diferent zones configured
+This method returns a list of all the diferent zones configured
 
-    my @zones=$dnsserver->list_zones;
+    my @zones = $dnsserver->list_zones;
 
 =over 4
 
@@ -54,15 +71,15 @@ This method returns an array of all the diferent zones configured
 
 =back
 
-This method returns an array of hashes with all records of one zone.
-The items of the hash deppends on the type of the record
+This method returns a list of hashes with all records of one zone.
+The keys of the hash deppends on the type of the record
 
     my @zone_e = $dnsserver->get_zone('catalunya.cat');
 
 The hash have the following keys:
 
         type            => String showing the type of the record
-                ('DNS Server','DNS Delegate','HOST','ALIAS','MX)
+                        ('ns','host','mx','alias','reverse')
         ttl             => ttl of the record
         ip              => ip of the host
         host            => host is only set with ns or mx records
@@ -75,7 +92,7 @@ The hash have the following keys:
 =back
 
 This method return an array of hashes with all records of one type.
-Posible types are: mx, ns, host, alias or all
+Posible types are: mx, ns, host, alias, reverse or all
 
     my @mxs = $dnsserver->list(type => 'mx' ,
                                zone => '7a69ezine.org');
@@ -91,7 +108,7 @@ This method adds a mx record
         $dnsserver->add(zone => '7a69ezine.org',
                         type => 'mx',
                         ip   => '10.0.0.1',
-                        host => 'rivendel',
+                        host => 'rivendel.7a69ezine.org',
                         pref => 10,
                         ttl  => 84500,
                         );
@@ -102,7 +119,7 @@ This method adds a ns record
         $dnsserver->add(zone => '7a69ezine.org',
                         type => 'ns',
                         ip   => '10.0.0.1',
-                        host => 'rivendel',
+                        host => 'rivendel.7a69ezine.org',
                         ttl  => 84500,
                         );
 
@@ -125,6 +142,15 @@ This method adds a alias record
                         ttl  => 84500,
                         );
 
+This method add a reverse dns record
+
+        $dnsserver->add(zone => '7a69ezine.org',
+                        type => 'reverse',
+                        host => 'anarion',
+                        ip   => '10.0.0.13',
+                        );
+
+
 =over 4
 
 =head2 del
@@ -136,7 +162,7 @@ This method delete a mx record
         $dnsserver->del(zone => '7a69ezine.org',
                         type => 'mx',
                         ip   => '10.0.0.1',
-                        host => 'rivendel',
+                        host => 'rivendel.7a69ezine.org',
                         pref => 10,
                         );
 
@@ -146,7 +172,7 @@ This method delete a ns record
         $dnsserver->del(zone => '7a69ezine.org',
                         type => 'ns',
                         ip   => '10.0.0.1',
-                        host => 'rivendel',
+                        host => 'rivendel.7a69ezine.org',
                         );
 
 
@@ -166,6 +192,39 @@ This method delete a alias record
                         cname=> 'www.7a69ezine.org',
                         );
 
+This method delete a reverse dns record
+
+        $dnsserver->del(zone => '7a69ezine.org',
+                        type => 'reverse',
+                        host => 'anarion',
+                        ip   => '10.0.0.13',
+                        );
+
+=head1 NOTE
+
+If you want to change from named to bind you can use to methods:
+
+=over 4
+
+Allow bind to transfer the zones from localhost:
+
+perl -lne 'system "tcpclient 127.0.0.1 53 axfr-get $1 zona-$1 zona-$1.tmp" if /zone[^"]+"([^"]+)"/' /home/named/etc/named.conf
+
+Use L<DNS::ZoneParse> and DNS::TinyDNS::dnsserver.
+
+=back
+
+=head1 AUTHOR
+
+Anarion: anarion@7a69ezine.org
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=head1 SEE ALSO
+
+L<DNS::TinyDNS::dnscache>.
+L<DNS::TinyDNS>.
 
 =cut
 
@@ -177,13 +236,15 @@ my %types = (   'ns'     => '[.&]',
                 'host'   => '[=+]',
                 'alias'  => 'C',
                 'mx'     => '@',
-                'all'    => '[C.&=+@]');
+                'reverse'=> '\^',
+                'all'    => '[C.&=+@^]');
 
-my %parse = (   'ns'    => \&_parse_ns,
-                'host'  => \&_parse_host,
-                'alias' => \&_parse_alias,
-                'mx'    => \&_parse_mx,
-                'all'   => \&_parse_all );
+my %parse = (   'ns'     => \&_parse_ns,
+                'host'   => \&_parse_host,
+                'alias'  => \&_parse_alias,
+                'mx'     => \&_parse_mx,
+                'reverse'=> \&_parse_reverse,
+                'all'    => \&_parse_all );
 
 
 sub new
@@ -253,8 +314,9 @@ sub list
         chomp($entrada);
         if($entrada =~ /^$types{ $options{type} }/)
         {
-                next if $options{zone} and 
-                        $entrada !~ /^.([\w\-]+\.)*\Q$options{zone}\E:/;
+                next if ! $options{zone} or 
+                        $entrada !~ /^.([\w\-]+\.)*\Q$options{zone}\E:/ and 
+                        $entrada !~ /^.[\w.]+\.in-addr.arpa:\Q$options{zone}\E:/;
                 push(@zone,$parse{ $options{type} }->($entrada));
         }
     }
@@ -284,9 +346,8 @@ sub list_zones
                 or carp "ERROR: Cant seek $file";
         while(my $entrada=<FILE>)
         {
-        	$zones{$1}++ if $entrada=~/^.(?:\d{1,3})([-\w.]+\.arpa):/ or
-		                $entrada=~/^.(?:[\w\-]+\.)*([\w\-]+\.\w{2,4}):/
-
+                $zones{$1}++ if $entrada=~/^.(?:\d{1,3}\.)([-\w.]+\.arpa):/ or
+                                $entrada=~/^.(?:[\w\-]+\.)*([\w\-]+\.\w{2,4}):/
         }
         close FILE
                 or carp "Error: Cant Close File";
@@ -314,7 +375,9 @@ sub get_zone
                 or carp "ERROR: Cant seek $file";
         while(my $entrada=<FILE>)
         {
-                if ($entrada=~/^$types{all}([\w\.\-]*\.)*\Q$zone\E:/)
+                chomp($entrada);
+                if ($entrada=~/^$types{all}(?:[\w\.\-]*\.)*\Q$zone\E:/ or
+                    $entrada=~/^\^(?:\d{1,3}\.){4}in-addr.arpa:(?:[\w\-]+\.)*\Q$zone\E/)
                 {
                         push(@zone,_parse_all->($entrada));
                 }
@@ -349,17 +412,19 @@ sub add
                 or carp "Cant lock $file";
         seek(FILE,0,2)
                 or carp "ERROR: Cant seek $file";
-        $options{ttl}||="86400"; # 1 day
+        $options{ttl} ||= 86400; # 1 day
         for($options{type})
         {
                 $string =
-                /ns/    && do { ".$options{zone}:$options{ip}:$options{host}:$options{ttl}" 		}	||
-                /mx/    && do { "\@$options{zone}:$options{ip}:$options{host}:$options{pref}:$options{ttl}"} 	||
-                /host/  && do { "+$options{host}.$options{zone}:$options{ip}:$options{ttl}" 		}	||
-                /alias/ && do { "C$options{host}.$options{zone}:$options{cname}:$options{ttl}" 		}	or
+                /ns/    && do { '.' . join":",@options{qw/zone ip host ttl/}                } ||
+                /mx/    && do { '@' . join ":",@options{qw/zone ip host pref ttl/}          } ||
+                /host/  && do { "+$options{host}." . join ":", @options{qw/zone ip ttl/}    } ||
+                /alias/ && do { "C$options{host}." . join ":", @options{qw/zone cname ttl/} } ||
+                /reverse/&&do { sprintf("^%d.%d.%d.%d.in-addr.arpa:%s.%s:%d",($options{ip} =~
+                                /\d+/g)[3,2,1,0],@options{'host','zone','ttl'})             } or
                         carp "What type is ($_) ?";
         }
-	return 0 unless $string;
+        return 0 unless $string;
         syswrite(FILE,"$string\n");
         close(FILE)
                 or carp "Error: Cant close file";
@@ -369,7 +434,6 @@ sub del
 {
         my ($self,%options) = @_;
         my $file = $self->{dir} . "/root/data";
-        my $string;
         local (*FILE,*FILENEW);
 
         unless($self->{dir} and -f $file)
@@ -399,31 +463,28 @@ sub del
         seek(FILENEW,0,0)
                 or carp "ERROR: Cant seek $file.new";
 
-        ENTRADA:
+        my ($entry,$found);
+        for($options{type})
+        {
+                $entry = /host/ && do { "^[=+]\Q$options{host}.$options{zone}\E" .
+                                        "\Q:$options{ip}$options{cname}\E"    } ||
+                        /alias/ && do { "^C\Q$options{host}.$options{zone}\E"    .
+                                        "\Q:$options{cname}\E"                } ||
+                        /mx/    && do { "^\@\Q$options{zone}:$options{ip}\E"     .
+                                        ":\Q$options{host}:$options{pref}\E"  } ||
+                        /ns/    && do { "^[.&]\Q$options{zone}:$options{ip}\E"   .
+                                        ":\Q$options{host}\E:"                } ||
+                        /reverse/&&do { sprintf("^\\^%d.%d.%d.%d.in-addr.arpa:%s.%s:%d",
+                                        ($options{ip} =~/\d+/g)[3,2,1,0],
+                                        @options{'host','zone','ttl'})        } or
+                        warn "Unknown option ($_)";
+        }
+        return 0 unless $entry;
+        $entry = qr/$entry/;
+
         while(my $entrada=<FILE>)
         {
-                for($options{type})
-                {
-                        /host|alias/ && 
-				$entrada=~/^[C=+]\Q$options{host}\E\.\Q$options{zone}\E:\Q$options{ip}$options{cname}\E/ &&
-				do { 
-					$trobat++;
-					next ENTRADA 
-				   } 
-		     ||
-                        /mx/         && 
-				$entrada=~/^\@\Q$options{zone}\E:\Q$options{ip}\E:\Q$options{host}\E:\Q$options{pref}\E/ &&
-				do { 	$trobat++;
-					next ENTRADA 
-				   } 
-		     ||
-                        /ns/         && 
-				$entrada=~/^[.&]\Q$options{zone}\E:\Q$options{ip}\E:\Q$options{host}\E:/ &&
-                                do { 
-					$trobat++;
-					next ENTRADA 
-				   }
-                }
+                ++$found and next if $found or $entrada=~/$entry/;
                 syswrite(FILENEW,$entrada);
         }
 
@@ -444,6 +505,7 @@ sub _parse_ns
     my @data=split/:/,substr($_[0],1);
     return { zone => $data[0],
              ip   => $data[1],
+             type => 'ns',
              host => $data[2],
              ttl  => $data[3]  };
 }
@@ -453,6 +515,7 @@ sub _parse_mx
     my @data=split/:/,substr($_[0],1);
     return { zone => $data[0],
              ip   => $data[1],
+             type => 'mx',
              host => $data[2],
              ttl  => $data[4],
              pref => $data[3]  };
@@ -461,7 +524,10 @@ sub _parse_mx
 sub _parse_host
 {
     my @data=split/:/,substr($_[0],1);
-    return { zone => $data[0],
+    my ($host,$zone) = split/\./,$data[0],2;
+    return { zone => $zone,
+             host => $host,
+             type => 'host',
              ip   => $data[1],
              ttl  => $data[2]  };
 }
@@ -469,9 +535,24 @@ sub _parse_host
 sub _parse_alias
 {
     my @data=split/:/,substr($_[0],1);
-    return { zone => $data[0],
-             ip   => $data[1],
+    my ($host,$zone) = split/\./,$data[0],2;
+    return { zone => $zone,
+             host => $host,
+             type => 'alias',
+             cname=> $data[1],
              ttl  => $data[2]  };
+}
+
+sub _parse_reverse
+{
+    my @data=split/:/,substr($_[0],1);
+    my $ip = join ".", ($data[0]=~/\d+/g)[3,2,1,0];
+    my ($host,$zone) = split/\./,$data[1],2;
+    return { zone => $zone,
+             ip   => $ip,
+             type => 'reverse',
+             host => $host,
+             ttl  => $data[2] };
 }
 
 sub _parse_all
@@ -482,6 +563,7 @@ sub _parse_all
                   '='    => \&_parse_host,
                   '+'    => \&_parse_host,
                   'C'    => \&_parse_alias,
+                  '^'    => \&_parse_reverse,
                   '@'    => \&_parse_mx );
     return exists $types{$tipus} ? $types{$tipus}->($_[0]) : 0
 }
