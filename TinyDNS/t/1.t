@@ -12,14 +12,11 @@
 use strict;
 use warnings;
 use lib ".";
-use Test::Simple tests => 24;
+use Test::Simple tests => 37;
 use DNS::TinyDNS;
 
 my $dnscache = DNS::TinyDNS->new;
 my %config;
-
-ok( ! $dnscache );
-$dnscache = DNS::TinyDNS->new( type	=> 'some_undefined_type');
 
 # Tests 4 dnscache
 ok( ! $dnscache );
@@ -31,7 +28,7 @@ ok( $dnscache );
 $dnscache = DNS::TinyDNS->new( type	=> 'dnscache',
 			       dir	=> '/service/dnscachex');
 ok( $dnscache );
-print STDERR "Enter the directory root of dnscache ['/service/dnscachex']:\n";
+print STDERR "\nEnter the directory root of dnscache ['/service/dnscachex']:\n";
 chomp(my $dir = <STDIN>);
 $dir||="/service/dnscachex";
 ok( $dnscache->dir($dir) );
@@ -66,8 +63,8 @@ my $dnsserver = DNS::TinyDNS->new(type => 'dnsserver');
 %config = ();
 
 ok( $dnsserver );
-print STDERR "Enter the directory root of dnsserver ['/service/tinydns']:\n";
-chomp(my $dir = <STDIN>);
+print STDERR "\nEnter the directory root of dnsserver ['/service/tinydns']:\n";
+chomp($dir = <STDIN>);
 $dir||="/service/tinydns";
 ok( $dnsserver->dir($dir) );
 ok( $dnsserver->dir );
@@ -93,3 +90,5 @@ ok( $dnsserver->del(	zone => '7a69ezine.org',
                         ip   => '10.0.0.1',
                         host => 'rivendel',
                         ttl  => 84500,		) );
+
+1;

@@ -50,9 +50,9 @@ AR_STATIC_ARGS = cr
 NAME = DNS::TinyDNS
 DISTNAME = DNS-TinyDNS
 NAME_SYM = DNS_TinyDNS
-VERSION = 0.1
-VERSION_SYM = 0_1
-XS_VERSION = 0.1
+VERSION = 0.11
+VERSION_SYM = 0_11
+XS_VERSION = 0.11
 INST_ARCHLIB = blib/arch
 INST_SCRIPT = blib/script
 INST_BIN = blib/bin
@@ -679,7 +679,7 @@ testdb_static :: testdb_dynamic
 # --- MakeMaker ppd section:
 # Creates a PPD (Perl Package Description) for a binary distribution.
 ppd:
-	@$(PERL) -e "print qq{<SOFTPKG NAME=\"$(DISTNAME)\" VERSION=\"0,1,0,0\">\n\t<TITLE>$(DISTNAME)</TITLE>\n\t<ABSTRACT>Perl extension for manipulating djbdns </ABSTRACT>\n\t<AUTHOR>Anarion &lt;anarion\@7a69ezine.org&gt;</AUTHOR>\n}" > $(DISTNAME).ppd
+	@$(PERL) -e "print qq{<SOFTPKG NAME=\"$(DISTNAME)\" VERSION=\"0,11,0,0\">\n\t<TITLE>$(DISTNAME)</TITLE>\n\t<ABSTRACT>Perl extension for manipulating djbdns </ABSTRACT>\n\t<AUTHOR>Anarion &lt;anarion\@7a69ezine.org&gt;</AUTHOR>\n}" > $(DISTNAME).ppd
 	@$(PERL) -e "print qq{\t<IMPLEMENTATION>\n}" >> $(DISTNAME).ppd
 	@$(PERL) -e "print qq{\t\t<OS NAME=\"$(OSNAME)\" />\n\t\t<ARCHITECTURE NAME=\"i386-linux-thread-multi\" />\n\t\t<CODEBASE HREF=\"\" />\n\t</IMPLEMENTATION>\n</SOFTPKG>\n}" >> $(DISTNAME).ppd
 

@@ -4,7 +4,7 @@
 package DNS::TinyDNS::dnscache;
 
 our @ISA=qw(DNS::TinyDNS);
-our $VERSION="0.1";
+our $VERSION="0.11";
 
 =head1 NAME
 

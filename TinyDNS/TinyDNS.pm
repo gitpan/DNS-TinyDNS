@@ -3,7 +3,7 @@
 #  anarion@7a69ezine.org
 package DNS::TinyDNS;
 
-our $VERSION="0.1";
+our $VERSION="0.11";
 
 =head1 NAME
 
